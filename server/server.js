@@ -22,11 +22,13 @@ io.on('connection', (socket) => {
 
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'))
 
-  socket.on('createMessage', (message) => {
+  socket.on('createMessage', (message, callback) => {
     console.log('createMessage', message);
+
     // Emits to all connections
     const recievedMessage = _.pick(message, ['from', 'text'])
     io.emit('newMessage', generateMessage(...Object.values(recievedMessage)));
+    callback('server confirmation');
 
     // Broadcasting
     // socket.broadcast.emit('newMessage', {
