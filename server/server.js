@@ -4,7 +4,7 @@ const express = require('express');
 const socketIO = require('socket.io');
 const _ = require('lodash');
 
-const {generateMessage} = require('./utils/message.js');
+const {generateMessage, generateLocationMessage} = require('./utils/message.js');
 const publicPath = path.join(__dirname, '../public')
 const port = process.env.PORT || 3000;
 
@@ -23,19 +23,13 @@ io.on('connection', (socket) => {
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'))
 
   socket.on('createMessage', (message, callback) => {
-    console.log('createMessage', message);
-
     // Emits to all connections
-    const recievedMessage = _.pick(message, ['from', 'text'])
-    io.emit('newMessage', generateMessage(...Object.values(recievedMessage)));
+    io.emit('newMessage', generateMessage(message.from, message.text));
     callback('server confirmation');
+  })
 
-    // Broadcasting
-    // socket.broadcast.emit('newMessage', {
-    //   from: 'server',
-    //   text: 'hello',
-    //   createdAt: new Date().getTime()
-    // })
+  socket.on('createLocationMessage', (coords) => {
+    io.emit('newLocationMessage', generateLocationMessage('Admin', coords.lat, coords.lng));
   })
 
   socket.on('disconnect', () => {
