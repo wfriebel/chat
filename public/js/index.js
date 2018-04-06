@@ -13,8 +13,20 @@ socket.on('disconnect', () => {
 
 socket.on('newMessage', (message) => {
   const li = $('<li></li>');
-  li.text(`${message.from}: ${message.text}`);
+  const formattedTime = moment(message.createdAt).format('h:mm a');
+  li.text(`${message.from} ${formattedTime}: ${message.text}`);
 
+  $('#messages').append(li);
+})
+
+socket.on('newLocationMessage', (locationMessage) => {
+  const li = $('<li></li>');
+  const formattedTime = moment(locationMessage.createdAt).format('h:mm a');
+  li.text(`${locationMessage.from} ${formattedTime}: `);
+  const a = $('<a target="_blank"></a>');
+  a.attr('href', locationMessage.url);
+  a.text(`My current location`);
+  li.append(a);
   $('#messages').append(li);
 })
 
@@ -29,16 +41,6 @@ $('#message-form').on('submit', function(e) {
   socket.emit('createMessage', newMessage, (data) => {
     messageInput.val("");
   })
-})
-
-socket.on('newLocationMessage', (locationMessage) => {
-  const li = $('<li></li>');
-  li.text(`${locationMessage.from}: `)
-  const a = $('<a target="_blank"></a>');
-  a.attr('href', locationMessage.url);
-  a.text(`My current location`);
-  li.append(a);
-  $('#messages').append(li);
 })
 
 locationButton.on('click', function(e) {
